@@ -1,44 +1,41 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class RegisterPanel extends JPanel {
-    private Register register; // a register object to run the logic
-    private JPanel inputPanel; //a panel to hold the JTextField for the user to enter an amount
-    private JTextField input; // a place for the user to enter the amount
-    private PursePanel changePanel; // a panel to display the change
-public RegisterPanel() {
-    //Sets up new register panel to display the input of the money
-    //Initialization for all panels needed
-    register = new Register();
-    input = new JTextField(10);
-    changePanel = new PursePanel();
-    JPanel inputPanel = new JPanel();
+    private PurseFacade purseFacade;  // Use facade
+    private JPanel inputPanel;
+    private JTextField input;
+    private PursePanel changePanel;
 
-    input.addActionListener(new InputListener());
-    setLayout(new BorderLayout());
+    public RegisterPanel() {
+        // Sets up the register panel to use the facade
+        purseFacade = new PurseFacade(new DefaultMakeChangeStrategy());  // Default strategy
+        input = new JTextField(10);
+        changePanel = new PursePanel();
+        JPanel inputPanel = new JPanel();
 
-    inputPanel.add(new JLabel("Enter Amount: "));
-    inputPanel.add(input);
-    add(inputPanel, BorderLayout.NORTH);
-    add(changePanel, BorderLayout.CENTER);
-}
+        input.addActionListener(new InputListener());
+        setLayout(new BorderLayout());
 
-private class InputListener implements ActionListener {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        try {
-            double amount = Double.parseDouble(input.getText());
-            Purse change = register.makeChange(amount);
-            changePanel.setPurse(change);
-            changePanel.repaint();
+        inputPanel.add(new JLabel("Enter Amount: "));
+        inputPanel.add(input);
+        add(inputPanel, BorderLayout.NORTH);
+        add(changePanel, BorderLayout.CENTER);
+    }
 
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(RegisterPanel.this, "Invalid Amount!");
+    private class InputListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                double amount = Double.parseDouble(input.getText());
+                Purse change = purseFacade.getChange(amount);
+                changePanel.setPurse(change);
+                changePanel.repaint();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(RegisterPanel.this, "Invalid Amount!");
+            }
         }
     }
-}
-
 }
